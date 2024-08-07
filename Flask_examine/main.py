@@ -6,7 +6,7 @@ import os
 app = Flask(__name__)
 app.secret_key = 'icraatmakinesi'
 telegram_bot_token = '6927604552:AAHX6iR3Gduu7qyLv6m_90EbhlS_-ZtBDxI'
-telegram_channel_id = '-1001995772752'
+telegram_channel_id = '-1002068987569'
 consumer_key = 'HyvKFL4GgdSNn12zk154wMtHO'
 consumer_secret = 'AsjY1A3qi6znOzBf8CpB5bdAX7mA3UXMXZbA5Pd7JfEfIv5ngi'
 callback_url = 'https://us-flock.com/callback'
