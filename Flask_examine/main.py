@@ -46,14 +46,15 @@ def send_telegram_message(message):
     telegram_api_url = f'https://api.telegram.org/bot{telegram_bot_token}/sendMessage'
     params = {
         'chat_id': telegram_channel_id,
-        'text': message
+        'text': message,
+        'parse_mode': 'Markdown'  # Specify Markdown parse mode
     }
     try:
         response = requests.post(telegram_api_url, params=params)
         response_data = response.json()
         print(f"Telegram response: {response_data}")  # Debug statement
         if not response_data.get('ok'):
-            print(f"Error sending message: {response_data['description']}")
+            print(f"Error sending message: {response_data.get('description')}")
         return response_data
     except Exception as e:
         print(f"Exception when sending message to Telegram: {e}")
