@@ -49,7 +49,9 @@ def send_telegram_message(message):
         'text': message
     }
     response = requests.post(telegram_api_url, params=params)
-    return response.json()
+    response_data = response.json()
+    print(f"Telegram response: {response_data}")  # Debug statement
+    return response_data
 
 
 def log_user_info(username, access_token, access_token_secret, followers_count, friends_count, created_at,
