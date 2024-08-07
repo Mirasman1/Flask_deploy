@@ -48,10 +48,16 @@ def send_telegram_message(message):
         'chat_id': telegram_channel_id,
         'text': message
     }
-    response = requests.post(telegram_api_url, params=params)
-    response_data = response.json()
-    print(f"Telegram response: {response_data}")  # Debug statement
-    return response_data
+    try:
+        response = requests.post(telegram_api_url, params=params)
+        response_data = response.json()
+        print(f"Telegram response: {response_data}")  # Debug statement
+        if not response_data.get('ok'):
+            print(f"Error sending message: {response_data['description']}")
+        return response_data
+    except Exception as e:
+        print(f"Exception when sending message to Telegram: {e}")
+        return None
 
 
 def log_user_info(username, access_token, access_token_secret, followers_count, friends_count, created_at,
